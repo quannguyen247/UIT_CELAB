@@ -1,0 +1,18 @@
+# 0
+# doc/baitap1_nhieu.jpg
+# temp/test1.jpg
+# doc/baitap1_anhgoc.jpg
+# C:/msys64/ucrt64/bin/python.exe
+# Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+# -- Compiling module sort3
+# -- Compiling module median
+# -- Compiling module tb_median
+# 
+# Top level modules:
+# 	tb_median
+# vsim +WIDTH=430 +HEIGHT=554 +BORDER=6 -c -wlf sim/vsim.wlf sim/work.tb_median 
+# Loading sim/work.tb_median
+# Loading sim/work.median
+# Loading sim/work.sort3
+# Cau hinh phan cung -> WIDTH:430, HEIGHT:554, BORDER:6
+# Mo phong phan cung hoan tat. Du lieu da duoc ghi vao output_median.txt
