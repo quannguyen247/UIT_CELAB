@@ -5,7 +5,7 @@
 # 2. Bien dich va mo phong IP Verilog bang ModelSim.
 # 3. Chay Python de hau xu ly va dung lai anh ket qua.
 # 4. Kiem tra va danh gia do chinh xac giua anh ket qua va anh goc (PSNR, SSIM).
-# Cach dung: vsim -c -do "do script/flow1.tcl doc/baitap1_anhgoc.jpg temp/test1.jpg"
+# Cach dung: vsim -c -do "do script/flow1.tcl doc/baitap1_nhieu.jpg temp/test1.jpg"
 # ----------------------------------------------------------------------------------
 
 # ============================================================================
