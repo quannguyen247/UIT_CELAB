@@ -93,9 +93,10 @@ def main():
             
     border = len(ring_colors_grayscale)
     if border == 0:
-        print("Loi: Khong the phat hien bat ky mau vien nao.")
-        sys.exit(1)
-        
+        # Van cho phep xu ly neu anh khong co vien dong nhat.
+        # Truong hop nay se loc median tren toan bo anh voi BORDER=0.
+        print("Canh bao: Khong phat hien vien dong nhat, dat BORDER=0.")
+
     if border > 64:
         print(f"Loi: Do day vien ({border}px) vuot qua gioi han 64px.")
         sys.exit(1)
@@ -122,14 +123,15 @@ def main():
     # img[t:t+1, l:r]: Cat dung dai hang ngang dinh (top) tren loi anh sach
     # img[0:t, l:r]: La toan bo khoang trong vien 0->t. Gan de lai no bang dai ngang hang dinh.
     
-    # Keo gian phan tren va duoi
-    img[0:t, l:r] = img[t:t+1, l:r]
-    img[b:h, l:r] = img[b-1:b, l:r]
-    
-    # Keo gian phan trai va phai (bao tron luon ca 4 goc)
-    # Lay cot vien doc de de lai vien nhieu 2 ben. De luon qua toa do vien tren/duoi (mat 4 goc) de bo thanh vien kin.
-    img[:, 0:l] = img[:, l:l+1]
-    img[:, r:w] = img[:, r-1:r]
+    if border > 0:
+        # Keo gian phan tren va duoi
+        img[0:t, l:r] = img[t:t+1, l:r]
+        img[b:h, l:r] = img[b-1:b, l:r]
+        
+        # Keo gian phan trai va phai (bao tron luon ca 4 goc)
+        # Lay cot vien doc de de lai vien nhieu 2 ben. De luon qua toa do vien tren/duoi (mat 4 goc) de bo thanh vien kin.
+        img[:, 0:l] = img[:, l:l+1]
+        img[:, r:w] = img[:, r-1:r]
     # ------------------------------------------------------
 
     # Ky thuat dem ngoai cung (Halo Padding - np.pad):

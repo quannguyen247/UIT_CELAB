@@ -5,7 +5,7 @@
 # 2. Bien dich va mo phong IP Verilog bang ModelSim.
 # 3. Chay Python de hau xu ly va dung lai anh ket qua.
 # 4. Kiem tra va danh gia do chinh xac giua anh ket qua va anh goc (PSNR, SSIM).
-# Cach dung: vsim -c -do "do script/flow1.tcl doc/baitap1_anhgoc.jpg temp/test1.jpg"
+# Cach dung: vsim -c -do "do script/flow1.tcl <anh_vao> <anh_ra> [anh_goc_tham_chieu]"
 # ----------------------------------------------------------------------------------
 
 # ============================================================================
@@ -35,16 +35,28 @@ if {[file exists modelsim.ini]} {
 # PHAN 1: KIEM TRA DOI SO DAU VAO VA KHOI TAO BIEN MOI TRUONG
 # ============================================================================
 
-if {$argc != 2} {
+if {$argc < 2 || $argc > 3} {
     puts "Loi: Sai so luong doi so truyen vao."
-    puts "Huong dan su dung: do script/flow1.tcl <duong_dan_anh_vao> <duong_dan_anh_ra>"
-    exit
+    puts "Huong dan su dung: do script/flow1.tcl <duong_dan_anh_vao> <duong_dan_anh_ra> [duong_dan_anh_goc_tham_chieu]"
+    quit -f -code 1
 }
 
 set input_img $1
 set output_img $2
-set ref_img "doc/baitap1_anhgoc.jpg"
-set python_env "C:/msys64/ucrt64/bin/python.exe"
+if {$argc == 3} {
+    set ref_img $3
+} else {
+    set ref_img "doc/baitap1_anhgoc.jpg"
+}
+set python_env "python"
+
+# Xoa ket qua cu de tranh nham lan voi lan chay moi khi co loi giua chung
+if {[file exists temp/output_median.txt]} {
+    catch {file delete -force temp/output_median.txt}
+}
+if {[file exists $output_img]} {
+    catch {file delete -force $output_img}
+}
 
 puts "============================================================================"
 puts " GIAI DOAN 1: TIEN XU LY DU LIEU BANG PYTHON "
@@ -54,7 +66,7 @@ puts "==========================================================================
 if {[catch {exec $python_env script/pre1.py $input_img} py_out]} {
     puts "Da co loi xay ra trong qua trinh thuc thi script pre1.py:"
     puts $py_out
-    exit
+    quit -f -code 1
 }
 puts $py_out
 
@@ -62,7 +74,7 @@ puts $py_out
 # WIDTH (Chieu rong), HEIGHT (Chieu cao), BORDER (Vien).
 if {![regexp {WIDTH:\s*(\d+),\s*HEIGHT:\s*(\d+),\s*BORDER:\s*(\d+)} $py_out match width height border]} {
     puts "Loi: Khong the lay duoc thong so kich thuoc anh tu ket qua in ra cua pre1.py."
-    exit
+    quit -f -code 1
 }
 puts "-> Thanh cong: Da lay duoc cac tham so: WIDTH=$width, HEIGHT=$height, BORDER=$border"
 
@@ -96,7 +108,7 @@ puts "==========================================================================
 if {[catch {exec $python_env script/post1.py $output_img} post_out]} {
     puts "Da co loi xay ra trong qua trinh thuc thi script post1.py:"
     puts $post_out
-    exit
+    quit -f -code 1
 }
 puts $post_out
 
@@ -109,7 +121,7 @@ puts "==========================================================================
 if {[catch {exec $python_env script/cmp.py $ref_img $output_img} cmp_out]} {
     puts "Da co loi xay ra trong qua trinh thuc thi script cmp.py:"
     puts $cmp_out
-    exit
+    quit -f -code 1
 }
 puts $cmp_out
 
@@ -117,4 +129,4 @@ puts "==========================================================================
 puts " KET THUC QUY TRINH MO PHONG "
 puts "============================================================================"
 
-exit
+quit -f -code 0

@@ -5,11 +5,11 @@ cModel Technology
 Z0 dZ:\WINDOWS_BACKUP\OnlyDocuments\CE213_TKHTS_LAB\LAB2
 vmedian
 !i10b 1
-Z1 !s100 >S?`f7zgG[<5Wj95^_b5W3
-Z2 If0l=POTize9c5=DnK=`A>0
+Z1 !s100 GcaPoW?f8?:JEYH]::c8z0
+Z2 IJT?<C@APdeGUcQz[>hl2Q1
 Z3 V@<IXJLb12>VWiQ=Z08l@^3
-Z4 dZ:\WINDOWS_BACKUP\OnlyDocuments\CE213_TKHTS_LAB\LAB2
-Z5 w1775415555
+Z4 dC:\Users\Quan\Desktop\VMTN_CHUNG\HDL_LAB\LAB02
+Z5 w1775559843
 Z6 8rtl/median.v
 Z7 Frtl/median.v
 L0 33
@@ -17,7 +17,7 @@ Z8 OV;L;10.1d;51
 r1
 !s85 0
 31
-Z9 !s108 1775474838.472000
+Z9 !s108 1775643109.055000
 Z10 !s107 tb/tb_median.v|rtl/median.v|
 Z11 !s90 -work|sim/work|rtl/median.v|tb/tb_median.v|
 !s101 -O0
@@ -26,26 +26,26 @@ vrgb2gray
 Z13 !s100 VE88`8m:Q7<PzKP66aLD92
 Z14 I:_T7>WZB2l3;1JBZ7]^[T3
 Z15 VmO;LEkROTWkVl>UeAKjQ<3
-R4
-Z16 w1775405759
-Z17 8rtl/rgb2gray.v
-Z18 Frtl/rgb2gray.v
+Z16 dZ:\WINDOWS_BACKUP\OnlyDocuments\CE213_TKHTS_LAB\LAB2
+Z17 w1775405759
+Z18 8rtl/rgb2gray.v
+Z19 Frtl/rgb2gray.v
 L0 8
 R8
 r1
 31
-Z19 !s108 1775427541.876000
-Z20 !s107 tb/tb_rgb2gray.v|rtl/rgb2gray.v|
-Z21 !s90 -work|sim/work|rtl/rgb2gray.v|tb/tb_rgb2gray.v|
+Z20 !s108 1775427541.876000
+Z21 !s107 tb/tb_rgb2gray.v|rtl/rgb2gray.v|
+Z22 !s90 -work|sim/work|rtl/rgb2gray.v|tb/tb_rgb2gray.v|
 R12
 !i10b 1
 !s85 0
 !s101 -O0
 vsort3
 !i10b 1
-Z22 !s100 5UA[TfP[NGQfKezkU;jDS2
-Z23 ID_680L7?gaM<eCh<oL30;3
-Z24 VdVXCVDN62f1`d2[6O8O>72
+Z23 !s100 5UA[TfP[NGQfKezkU;jDS2
+Z24 ID_680L7?gaM<eCh<oL30;3
+Z25 VdVXCVDN62f1`d2[6O8O>72
 R4
 R5
 R6
@@ -62,13 +62,13 @@ R11
 R12
 vtb_median
 !i10b 1
-Z25 !s100 82F9TfohX?`OOinUg7djD0
-Z26 IPAB^>;VHk:8IkXF19?VaS0
-Z27 Vo8kQciN?12Wf1klC_Azie2
+Z26 !s100 82F9TfohX?`OOinUg7djD0
+Z27 IPAB^>;VHk:8IkXF19?VaS0
+Z28 Vo8kQciN?12Wf1klC_Azie2
 R4
-R5
-Z28 8tb/tb_median.v
-Z29 Ftb/tb_median.v
+Z29 w1775415555
+Z30 8tb/tb_median.v
+Z31 Ftb/tb_median.v
 L0 7
 R8
 r1
@@ -80,20 +80,20 @@ R11
 !s101 -O0
 R12
 vtb_rgb2gray
-Z30 !s100 H:0CK9B;_;=V0FX9ijH=Q3
-Z31 IhVFM?OaY:Yg<BjAI8lO[Z3
-Z32 VDMja2G72T03zc_UYlRS_<3
-R4
-Z33 w1775387566
-Z34 8tb/tb_rgb2gray.v
-Z35 Ftb/tb_rgb2gray.v
+Z32 !s100 H:0CK9B;_;=V0FX9ijH=Q3
+Z33 IhVFM?OaY:Yg<BjAI8lO[Z3
+Z34 VDMja2G72T03zc_UYlRS_<3
+R16
+Z35 w1775387566
+Z36 8tb/tb_rgb2gray.v
+Z37 Ftb/tb_rgb2gray.v
 L0 7
 R8
 r1
 31
-R19
 R20
 R21
+R22
 R12
 !i10b 1
 !s85 0
