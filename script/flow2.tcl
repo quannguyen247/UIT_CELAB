@@ -47,7 +47,7 @@ if {$argc == 3} {
     set brightness $3
 }
 
-set python_env "C:/msys64/ucrt64/bin/python.exe"
+set python_env "python"
 
 puts "============================================================================"
 puts " GIAI DOAN 1: TIEN XU LY DU LIEU BANG PYTHON "
