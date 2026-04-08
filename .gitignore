@@ -1,4 +1,8 @@
 **/__pycache__/
 **/*.pyc
+main/db
+main/output_files
+main/incremental_db
 sim/
 temp/
+transcript
