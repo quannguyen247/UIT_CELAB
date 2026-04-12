@@ -20,10 +20,10 @@ def main():
     # Doc anh duoi dang anh xam
     img = cv2.imread(input_path, cv2.IMREAD_GRAYSCALE)
     if img is None:
-        print("Loi: Khong the doc duoc anh dau vao.")
+        print(" Loi: Khong the doc duoc anh dau vao.")
         sys.exit(1)
 
-    print("Bat dau phat hien va luong tu hoa vien anh xam")
+    print(" Bat dau phat hien va luong tu hoa vien anh xam")
     # Ky thuat "Luong tu hoa" (Quantization):
     # Chia dai mau (0-255) thanh cac bac (o day la 16 bac).
     # Phep chia lay phan nguyen (//) roi nhan lai (*) se ep cac gia tri lan can nhau ve cung 1 moc.
@@ -95,10 +95,10 @@ def main():
     if border == 0:
         # Van cho phep xu ly neu anh khong co vien dong nhat.
         # Truong hop nay se loc median tren toan bo anh voi BORDER=0.
-        print("Canh bao: Khong phat hien vien dong nhat, dat BORDER=0.")
+        print(" Canh bao: Khong phat hien vien dong nhat, dat BORDER=0.")
 
-    if border > 64:
-        print(f"Loi: Do day vien ({border}px) vuot qua gioi han 64px.")
+    if border > 32:
+        print(f" Loi: Do day vien ({border}px) vuot qua gioi han 32px cho kien truc.")
         sys.exit(1)
         
     # Ghi thong tin kich thuoc ra file JSON
@@ -145,15 +145,18 @@ def main():
         for pixel_val in padded_img.flatten():
             f.write(f"{pixel_val:02x}\n")
             
-    # Xuat mau vien ra file hex (dien so 0 neu chua toi 64)
+    # XU LY FORMAT CHO PATTERN: 32 pixel -> 8 dong x 32-bit
+    # Lap day mang len du 32 pixel (bang 0) neu vien mong hon 32
+    colors_32 = ring_colors_grayscale[:32] + [0]*(32 - len(ring_colors_grayscale))
+    
     with open(pattern_output_path, 'w') as f:
-        for i in range(64):
-            if i < border:
-                f.write(f"{ring_colors_grayscale[i]:02x}\n")
-            else:
-                f.write("00\n")
+        # Nhay buoc 4 de gom 4 pixel 8-bit thanh 1 block 32-bit
+        for i in range(0, 32, 4):
+            # Dich bit ghep 4 pixel lai, pixel i nam o LSB (phu hop logic dich bit tren Verilog)
+            word32 = (colors_32[i+3] << 24) | (colors_32[i+2] << 16) | (colors_32[i+1] << 8) | colors_32[i]
+            f.write(f"{word32:08x}\n")
             
-    print(f"Kich thuoc cho testbench -> WIDTH: {w}, HEIGHT: {h}, BORDER: {border}")
+    print(f" Kich thuoc cho testbench -> WIDTH: {w}, HEIGHT: {h}, BORDER: {border}")
 
 if __name__ == "__main__":
     main()

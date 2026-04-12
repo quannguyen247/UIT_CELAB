@@ -1,12 +1,10 @@
+// ============================================================================
+// Ten file : rgb2gray_ip.v
+// Mo ta    : IP wrapper quan ly du lieu dang stream cho core rgb2gray.
+//            Tich hop bo tien tinh toan thong so khung hinh va pixel.
+// ============================================================================
 `timescale 1ns / 1ps
 
-// =========================================================================
-// Module: rgb2gray_ip
-// Mo ta:
-//   Wrapper co clock/reset cho rgb2gray de chay theo frame.
-//   Moi chu ky nhan 1 pixel RGB khi in_valid=1 va in_ready=1.
-//   IP tu dong dem du so pixel (width*height) roi assert done.
-// =========================================================================
 module rgb2gray_ip (
     input  wire         clk,
     input  wire         rst_n,
@@ -27,51 +25,104 @@ module rgb2gray_ip (
     output reg          busy,
     output reg          done
 );
-    wire [7:0] gray_comb;
-    wire [31:0] total_pixels = width * height;
 
-    reg [31:0] pixel_count;
-
-    assign in_ready = busy && (pixel_count < total_pixels);
-
-    rgb2gray u_rgb2gray (
-        .r(in_r),
-        .g(in_g),
-        .b(in_b),
-        .brightness(brightness),
-        .gray(gray_comb)
-    );
+    // ========================================================================
+    // KHOI RESET SYNCHRONIZER
+    // Dong bo hoa tin hieu reset bat dong bo (rst_n) sang mien xung nhip clk 
+    // de tranh hien tuong metastability. Reset duoc dua xuong muc 0 ngay lap 
+    // tuc, nhung duoc keo len muc 1 dong bo voi canh len cua clk.
+    // ========================================================================
+    reg rst_n_meta;
+    reg rst_n_sync;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            pixel_count <= 32'd0;
-            out_valid   <= 1'b0;
-            out_gray    <= 8'd0;
-            busy        <= 1'b0;
-            done        <= 1'b0;
+            rst_n_meta <= 1'b0;
+            rst_n_sync <= 1'b0;
         end else begin
-            out_valid <= 1'b0;
-            done      <= 1'b0;
+            rst_n_meta <= 1'b1;
+            rst_n_sync <= rst_n_meta;
+        end
+    end
+
+    reg [31:0] total_pixels; 
+    reg [31:0] total_pixels_m1; 
+    
+    reg [31:0] input_count;
+    reg [31:0] output_count;
+
+    wire core_out_valid;
+    wire [7:0] core_out_gray;
+
+    wire [31:0] mult_res = width * height;
+
+    // Kiem soat tin hieu san sang nhan du lieu vao
+    assign in_ready = busy && (input_count < total_pixels);
+
+    // Khoi tao module xu ly chinh
+    rgb2gray u_rgb2gray (
+        .clk(clk),
+        .rst_n(rst_n_sync),
+        .in_valid(in_valid && in_ready),
+        .in_r(in_r),
+        .in_g(in_g),
+        .in_b(in_b),
+        .brightness(brightness),
+        .out_valid(core_out_valid),
+        .out_gray(core_out_gray)
+    );
+
+    always @(posedge clk or negedge rst_n_sync) begin
+        if (!rst_n_sync) begin
+            input_count     <= 32'd0;
+            output_count    <= 32'd0;
+            total_pixels    <= 32'd0;
+            total_pixels_m1 <= 32'd0;
+            out_valid       <= 1'b0;
+            out_gray        <= 8'd0;
+            busy            <= 1'b0;
+            done            <= 1'b0;
+        end else begin
+            done <= 1'b0;
 
             if (!busy) begin
                 if (start) begin
-                    pixel_count <= 32'd0;
-                    if (total_pixels == 32'd0) begin
+                    input_count  <= 32'd0;
+                    output_count <= 32'd0;
+                    out_valid    <= 1'b0;
+                    out_gray     <= 8'd0;
+
+                    // Tien tinh toan thong so de giam tai cho bo so sanh o trang thai hoat dong
+                    total_pixels <= mult_res;
+                    total_pixels_m1 <= mult_res - 1'b1;
+                    
+                    // Kiem tra tinh hop le cua do phan giai
+                    if ((width == 16'd0) || (height == 16'd0)) begin
                         busy <= 1'b0;
                         done <= 1'b1;
                     end else begin
                         busy <= 1'b1;
                     end
                 end
-            end else if (in_valid && in_ready) begin
-                out_valid <= 1'b1;
-                out_gray  <= gray_comb;
+            end else begin
+                // Giam sat tin hieu luong dau vao
+                if (in_valid && in_ready) begin
+                    input_count <= input_count + 1'b1;
+                end
 
-                if (pixel_count == (total_pixels - 1'b1)) begin
-                    busy <= 1'b0;
-                    done <= 1'b1;
-                end else begin
-                    pixel_count <= pixel_count + 1'b1;
+                // Giam sat tin hieu luong dau ra
+                out_valid <= core_out_valid;
+
+                if (core_out_valid) begin
+                    out_gray <= core_out_gray;
+
+                    // Kiem tra dieu kien ket thuc khung anh
+                    if (output_count == total_pixels_m1) begin
+                        busy <= 1'b0;
+                        done <= 1'b1;
+                    end else begin
+                        output_count <= output_count + 1'b1;
+                    end
                 end
             end
         end

@@ -8,7 +8,7 @@ from pathlib import Path
 def main():
     # Kiem tra doi so truyen vao
     if len(sys.argv) != 2:
-        print("Cach su dung: python post2.py <duong_dan_anh_dau_ra>")
+        print(" Cach su dung: python post2.py <duong_dan_anh_dau_ra>")
         sys.exit(1)
 
     final_output_path = Path(sys.argv[1])
@@ -18,7 +18,7 @@ def main():
     hw_input_txt = temp_dir / "output_gray.txt"
     json_path = temp_dir / "meta2.json"
 
-    print("Bat dau khoi phuc anh tu ma hex")
+    print(" Bat dau khoi phuc anh tu ma hex")
     
     # Trich xuat kich thuoc anh tu metadata
     with open(json_path, 'r') as f:
@@ -31,7 +31,7 @@ def main():
     if hw_input_txt.exists():
         input_file = hw_input_txt
     else:
-        print(f"Loi: Khong tim thay file output_gray.txt tai {hw_input_txt}")
+        print(f" Loi: Khong tim thay file output_gray.txt tai {hw_input_txt}")
         sys.exit(1)
     
     hex_data = []
@@ -53,11 +53,11 @@ def main():
                     unknown_count += 1
 
     if unknown_count > 0:
-        print(f"Canh bao: Co {unknown_count} pixel o trang thai x/z, da thay bang 00.")
+        print(f" Canh bao: Co {unknown_count} pixel o trang thai x/z, da thay bang 00.")
         
     # Kiem tra toan ven du lieu
     if len(hex_data) != (h * w):
-        print(f"Loi: So luong pixel khong khop. Mong doi {h * w}, nhan duoc {len(hex_data)}.")
+        print(f" Loi: So luong pixel khong khop. Mong doi {h * w}, nhan duoc {len(hex_data)}.")
         sys.exit(1)
         
     # Dinh dang lai mang 1 chieu hexa thanh ma tran hinh anh 2 chieu
@@ -69,7 +69,7 @@ def main():
 
     # Luu file ket qua
     if not cv2.imwrite(str(final_output_path), final_image):
-        print(f"Loi: Khong the ghi anh dau ra tai {final_output_path_display}")
+        print(f" Loi: Khong the ghi anh dau ra tai {final_output_path_display}")
         sys.exit(1)
     print(f"Khoi phuc anh thanh cong va da luu tai {final_output_path_display}")
 
