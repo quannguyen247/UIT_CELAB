@@ -59,10 +59,7 @@ module tb_median;
     integer out_r, out_c;
 
     initial begin
-        // Buoc 1: Kiem tra tham so truyen vao tu script
-        if (!$value$plusargs("WIDTH=%d", WIDTH) || !$value$plusargs("HEIGHT=%d", HEIGHT) || !$value$plusargs("BORDER=%d", BORDER)) begin
-            $finish;
-        end
+        // Buoc 1: Nhan tham so truyen vao tu script
         $display("Cau hinh phan cung -> WIDTH:%0d, HEIGHT:%0d, BORDER:%0d", WIDTH, HEIGHT, BORDER);
         pad_w = WIDTH + 2;
 

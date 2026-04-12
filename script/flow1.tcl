@@ -3,7 +3,7 @@
 # Kich ban nay tu dong hoa 1 quy trinh mo phong bao gom 5 giai doan:
 # 1. Chay Python de tien xu ly anh dau vao.
 # 2. Bien dich va mo phong IP Verilog bang ModelSim.
-# 3. Thuc hien STA bang TimeQuest Timing Analyzer (Su dung project Quartus co san).
+# 3. Thuc hien STA bang TimeQuest Timing Analyzer (Su dung project Quartus dat o sta/median).
 # 4. Chay Python de hau xu ly va dung lai anh ket qua.
 # 5. Kiem tra va danh gia do chinh xac giua anh ket qua va anh goc.
 # Cach dung: vsim -c -do "do script/flow1.tcl <anh_vao> <anh_ra> <anh_tham_chieu>"
@@ -11,7 +11,7 @@
 # ---------------------------------------------------------------------------------------------------
 
 # ===================================================================================================
-# PHAN 0: CAU HINH MOI TRUONG
+# GIAI DOAN 0: CAU HINH MOI TRUONG
 # ===================================================================================================
 
 if {![file exists sim]} { file mkdir sim }
@@ -22,11 +22,7 @@ transcript file sim/transcript
 if {[file exists transcript]} { quietly catch {file delete -force transcript} }
 if {[file exists modelsim.ini]} { quietly catch {file delete -force modelsim.ini} }
 
-# ===================================================================================================
-# PHAN 1: KHOI TAO VA TIEN XU LY PYTHON
-# ===================================================================================================
-
-# Bat buoc phai co dung 3 doi so, khong fallback
+# Bat buoc phai co dung 3 doi so
 if {$argc != 3} {
     puts "Loi: Sai so luong doi so."
     puts "HDSD: do script/flow1.tcl <anh_vao> <anh_ra> <anh_goc_tham_chieu>"

@@ -19,3 +19,4 @@ sta/*/*.pti_db_list.ddb
 sta/*/*.tis_db_list.ddb
 sta/*/*.log
 sta/*/*_description.txt
+sta/*/*.qws
