@@ -25,6 +25,7 @@ module rgb2gray_ip (
     output reg          busy,
     output reg          done
 );
+
     reg [31:0] total_pixels; 
     reg [31:0] total_pixels_m1; 
     
@@ -33,6 +34,8 @@ module rgb2gray_ip (
 
     wire core_out_valid;
     wire [7:0] core_out_gray;
+
+    wire [31:0] mult_res = width * height;
 
     // Kiem soat tin hieu san sang nhan du lieu vao
     assign in_ready = busy && (input_count < total_pixels);
@@ -71,8 +74,8 @@ module rgb2gray_ip (
                     out_gray     <= 8'd0;
                     
                     // Tien tinh toan thong so de giam tai cho bo so sanh o trang thai hoat dong
-                    total_pixels <= width * height; 
-                    total_pixels_m1 <= (width * height) - 1'b1;
+                    total_pixels <= mult_res;
+                    total_pixels_m1 <= mult_res - 1'b1;
                     
                     // Kiem tra tinh hop le cua do phan giai
                     if ((width == 16'd0) || (height == 16'd0)) begin

@@ -61,20 +61,22 @@ module median_ip #(
     reg [15:0] pending_row;
     reg [15:0] pending_col;
 
-    // Thanh ghi doc tu Line Buffer
-    reg [7:0]  row1_pix;
-    reg [7:0]  row2_pix;
-
     // Thong so anh co tinh ca 2 pixel padding
     wire [15:0] padded_width  = width + 16'd2;
     wire [15:0] padded_height = height + 16'd2;
     
-    wire [31:0] total_in  = padded_width * padded_height;
     wire [31:0] total_out = width * height;
+    
+    // Tai su dung total_out, thay phep nhan bang dich bit va phep cong
+    wire [31:0] total_in  = total_out + {15'b0, width, 1'b0} + {15'b0, height, 1'b0} + 32'd4;
 
     // Chi cho data vao khi he thong dang busy va chua doc du so luong
     wire can_accept = busy && (input_count < total_in);
     assign in_ready = can_accept;
+
+    // Doc truc tiep tu Line Buffer bang non-blocking assign ra ben ngoai
+    wire [7:0] read_line1 = linebuf1[in_col];
+    wire [7:0] read_line2 = linebuf2[in_col];
 
     // Ket noi core median ra ben ngoai IP wrapper
     wire       median_out_valid;
@@ -102,19 +104,13 @@ module median_ip #(
     // ========================================================================
     // TAP THANH GHI DICH DONG BO VOI PIPELINE CORE
     // Core loc co pipeline 3 tang -> ket qua tre 3 chu ky clk
-    // Nen buoc phai delay toa do in_row/in_col tre 3 chu ki clk tuong ung.
     // ========================================================================
     reg [15:0] s1_row, s2_row, s3_row;
     reg [15:0] s1_col, s2_col, s3_col;
 
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            s1_row <= 16'd0; s2_row <= 16'd0; s3_row <= 16'd0;
-            s1_col <= 16'd0; s2_col <= 16'd0; s3_col <= 16'd0;
-        end else begin
-            s1_row <= pending_row; s2_row <= s1_row; s3_row <= s2_row;      
-            s1_col <= pending_col; s2_col <= s1_col; s3_col <= s2_col;
-        end
+    always @(posedge clk) begin
+        s1_row <= pending_row; s2_row <= s1_row; s3_row <= s2_row;      
+        s1_col <= pending_col; s2_col <= s1_col; s3_col <= s2_col;
     end
 
     // ========================================================================
@@ -122,33 +118,22 @@ module median_ip #(
     // ========================================================================
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            w00 <= 8'd0; w01 <= 8'd0; w02 <= 8'd0;
-            w10 <= 8'd0; w11 <= 8'd0; w12 <= 8'd0;
-            w20 <= 8'd0; w21 <= 8'd0; w22 <= 8'd0;
-
-            in_row <= 16'd0; in_col <= 16'd0;
-            input_count  <= 32'd0;
-            output_count <= 32'd0;
-
+            input_count   <= 32'd0;
+            output_count  <= 32'd0;
             pending_valid <= 1'b0;
-            pending_row   <= 16'd0; pending_col <= 16'd0;
-
-            out_valid <= 1'b0; out_pixel <= 8'd0;
-            out_row   <= 16'd0; out_col   <= 16'd0;
-
-            busy <= 1'b0; done <= 1'b0;
+            out_valid     <= 1'b0;
+            busy          <= 1'b0;
+            done          <= 1'b0;
         end else begin
             done          <= 1'b0;
             pending_valid <= 1'b0; // Auto-clear tung chu ky
             
             // Xac nhan data tu pipeline ra port chinh cua IP
             out_valid <= median_out_valid;
-            
             if (median_out_valid) begin
                 out_pixel <= median_out;
                 out_row   <= s3_row;
                 out_col   <= s3_col;
-
                 if (output_count == (total_out - 1'b1)) begin
                     busy <= 1'b0;
                     done <= 1'b1; // Ket thuc xu ly toan khung hinh
@@ -159,12 +144,8 @@ module median_ip #(
 
             if (!busy) begin
                 if (start) begin
-                    // Reset trang thai noi bo IP khi bat dau 1 frame moi
-                    w00 <= 8'd0; w01 <= 8'd0; w02 <= 8'd0;
-                    w10 <= 8'd0; w11 <= 8'd0; w12 <= 8'd0;
-                    w20 <= 8'd0; w21 <= 8'd0; w22 <= 8'd0;
-                    
-                    in_row        <= 16'd0; in_col <= 16'd0;
+                    in_row        <= 16'd0;
+                    in_col        <= 16'd0;
                     input_count   <= 32'd0;
                     output_count  <= 32'd0;
                     pending_valid <= 1'b0;
@@ -178,17 +159,14 @@ module median_ip #(
                     end
                 end
             end else if (can_accept && in_valid) begin
-                // B1: Doc pixel theo cot tu 2 Line Buffer
-                row1_pix = linebuf1[in_col];
-                row2_pix = linebuf2[in_col];
-
-                // B2: Cap nhat Line Buffer (FIFO theo hang)
-                linebuf2[in_col] <= row1_pix;
+                
+                // Cap nhat Line Buffer (FIFO theo hang)
+                linebuf2[in_col] <= read_line1;
                 linebuf1[in_col] <= in_pixel;
 
-                // B3: Dich cua so 3x3 sang trai, day cot moi vao ben phai
-                w00 <= w01; w01 <= w02; w02 <= row2_pix;
-                w10 <= w11; w11 <= w12; w12 <= row1_pix;
+                // Dich cua so 3x3 sang trai, day cot moi vao ben phai
+                w00 <= w01; w01 <= w02; w02 <= read_line2;
+                w10 <= w11; w11 <= w12; w12 <= read_line1;
                 w20 <= w21; w21 <= w22; w22 <= in_pixel;
 
                 // Kiem tra cua so 3x3 da tich luy vao sau trong vung anh that hay chua
@@ -201,7 +179,6 @@ module median_ip #(
 
                 // Tien trinh quet ma tran theo raster scan
                 input_count <= input_count + 1'b1;
-                
                 if (in_col == (padded_width - 1'b1)) begin
                     in_col <= 16'd0;
                     in_row <= in_row + 1'b1;
