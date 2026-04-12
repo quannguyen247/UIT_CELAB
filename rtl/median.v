@@ -27,6 +27,7 @@ module sort3 (
     assign out_max = (c12 && c13)   ? in1 : (!c12 && c23) ? in2 : in3;
     assign out_min = (!c12 && !c13) ? in1 : (c12 && !c23) ? in2 : in3;
     assign out_mid = (c12 != c13)   ? in1 : (c12 == c23)  ? in2 : in3;
+
 endmodule
 
 // ============================================================================
@@ -54,8 +55,8 @@ module median (
     // Nhom toa do va thong so khung hinh
     input  wire [15:0]  row,            // Toa do Y hien tai cua pixel trung tam
     input  wire [15:0]  col,            // Toa do X hien tai cua pixel trung tam
-    input  wire [15:0]  width,          // Chieu rong thuc te cua buc anh
-    input  wire [15:0]  height,         // Chieu cao thuc te cua buc anh
+    input  wire [15:0]  width_m1,       // Chieu rong thuc te cua buc anh tru 1
+    input  wire [15:0]  height_m1,      // Chieu cao thuc te cua buc anh tru 1
     input  wire [7:0]   border,         // Do day cua lop vien
 
     // Nhom tin hieu xuat ket qua
@@ -82,6 +83,7 @@ module median (
             load_done  <= 1'b0;
         end else begin
             state <= next_state;
+            
             case (state)
                 IDLE: begin
                     load_done <= 1'b0;
@@ -95,7 +97,8 @@ module median (
                 end
 
                 RUN: begin
-                    load_done <= 1'b1; // He thong san sang nhan in_valid vao pipeline
+                    load_done <= 1'b1;
+                    // He thong san sang nhan in_valid vao pipeline
                 end
             endcase
         end
@@ -104,6 +107,7 @@ module median (
     // Khoi to hop: Giai ma trang thai tiep theo va chuyen doi trang thai
     always @(*) begin
         next_state = state;
+        
         case (state)
             IDLE: if (start_load)          next_state = LOAD;
             LOAD: if (load_count == 3'd7)  next_state = RUN;
@@ -117,6 +121,7 @@ module median (
     // ========================================================================
     reg valid_s1, valid_s2; // Co bao hieu du lieu hop le o tang 1 va tang 2 
                             // cua pipeline
+
     // ------------------------------------------------------------------------
     // STAGE 1: Sap xep 3 hang rieng biet va tinh toan khoang cach vien
     // ------------------------------------------------------------------------
@@ -129,8 +134,8 @@ module median (
     sort3 r2_sort (.in1(p20), .in2(p21), .in3(p22), .out_max(w_r2_max), .out_mid(w_r2_mid), .out_min(w_r2_min));
 
     // Tinh toan truoc khoang cach bien theo truc X, Y de giam logic delay cho cac stage sau
-    wire [15:0] w_dist_bottom = (height - 16'd1) - row;
-    wire [15:0] w_dist_right  = (width  - 16'd1) - col;
+    wire [15:0] w_dist_bottom = height_m1 - row;
+    wire [15:0] w_dist_right  = width_m1 - col;
     
     wire [15:0] w_min_y_comb  = (row < w_dist_bottom) ? row : w_dist_bottom;
     wire [15:0] w_min_x_comb  = (col < w_dist_right)  ? col : w_dist_right;
@@ -139,11 +144,16 @@ module median (
     wire [7:0] w_min_y_sat = (w_min_y_comb > 16'd255) ? 8'd255 : w_min_y_comb[7:0];
     wire [7:0] w_min_x_sat = (w_min_x_comb > 16'd255) ? 8'd255 : w_min_x_comb[7:0];
 
+    // Tinh luon khoang cach vien va chi so mau vien tai stage 1 de giam path cho stage 2
+    wire [7:0] w_d_comb = (w_min_y_sat < w_min_x_sat) ? w_min_y_sat : w_min_x_sat;
+    wire [4:0] w_safe_idx_comb = (w_d_comb < 8'd32) ? w_d_comb[4:0] : 5'd31;
+
     // Tap thanh ghi chot data tu Stage 1 sang Stage 2
     reg [7:0]  s1_r0_max, s1_r1_max, s1_r2_max;
     reg [7:0]  s1_r0_mid, s1_r1_mid, s1_r2_mid;
     reg [7:0]  s1_r0_min, s1_r1_min, s1_r2_min;
-    reg [7:0]  s1_min_y, s1_min_x;
+    reg [7:0]  s1_w_d;
+    reg [4:0]  s1_safe_idx;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -155,8 +165,8 @@ module median (
                 s1_r1_max <= w_r1_max; s1_r1_mid <= w_r1_mid; s1_r1_min <= w_r1_min;
                 s1_r2_max <= w_r2_max; s1_r2_mid <= w_r2_mid; s1_r2_min <= w_r2_min;
                 
-                s1_min_y <= w_min_y_sat;
-                s1_min_x <= w_min_x_sat;
+                s1_w_d      <= w_d_comb;
+                s1_safe_idx <= w_safe_idx_comb;
             end
         end
     end
@@ -170,14 +180,9 @@ module median (
     sort3 c_mid_sort (.in1(s1_r0_mid), .in2(s1_r1_mid), .in3(s1_r2_mid), .out_max(),           .out_mid(w_mid_mid),  .out_min());
     sort3 c_min_sort (.in1(s1_r0_min), .in2(s1_r1_min), .in3(s1_r2_min), .out_max(w_max_min),  .out_mid(),           .out_min());
 
-    // Khoang cach thuc su ngan nhat tu pixel toi bat ky mep nao cua anh
-    wire [7:0] w_d = (s1_min_y < s1_min_x) ? s1_min_y : s1_min_x;
-    
     // Su dung MUX tai stage 2 de ngan chan critical path lan truyen sang stage 3
-    wire w_is_border_comb = (w_d < border);
-    wire [4:0] safe_idx   = (w_d < 8'd32) ? w_d[4:0] : 5'd31;
-    
-    wire [7:0] w_border_color_comb = border_pattern_reg[{safe_idx, 3'b000} +: 8];
+    wire w_is_border_comb = (s1_w_d < border);
+    wire [7:0] w_border_color_comb = border_pattern_reg[{s1_safe_idx, 3'b000} +: 8];
 
     // Tap thanh ghi chot data tu Stage 2 sang Stage 3
     reg [7:0] s2_min_max, s2_mid_mid, s2_max_min;

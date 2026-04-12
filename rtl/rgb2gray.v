@@ -20,10 +20,23 @@ module rgb2gray (
 );
 
     // ========================================================================
+    // DONG BO HOA TIN HIEU CAU HINH
+    // Chot tin hieu brightness tu ben ngoai vao de tranh delay duong day
+    // ========================================================================
+    reg signed [7:0] brightness_reg;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            brightness_reg <= 8'd0;
+        end else begin
+            brightness_reg <= brightness;
+        end
+    end
+
+    // ========================================================================
     // STAGE 1: Tinh tich cac kenh R, G, B thong qua cong va dich bit
-    // He so chieu sang gan dung: R*0.299 ~ R*77 >> 8, 
-    //                            G*0.587 ~ G*150 >> 8, 
-    //                            B*0.114 ~ B*29 >> 8
+    // He so gan dung (theo tieu chuan NTSC): R*0.299 ~ R*77 >> 8, 
+    //                                        G*0.587 ~ G*150 >> 8, 
+    //                                        B*0.114 ~ B*29 >> 8
     // ========================================================================
     reg [15:0]       p_r, p_g, p_b;
     reg              v_s1;
@@ -83,9 +96,9 @@ module rgb2gray (
     // ========================================================================
     // Chi 8 bit cao MSB = >> 8
     wire [7:0]       gray_base = sum_rgb[15:8];
-    
+
     // Cong do sang co dau truc tiep vao stage cuoi
-    wire signed [9:0] gray_calc = $signed({2'b00, gray_base}) + $signed({{2{brightness[7]}}, brightness});
+    wire signed [9:0] gray_calc = $signed({2'b00, gray_base}) + $signed({{2{brightness_reg[7]}}, brightness_reg});
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin

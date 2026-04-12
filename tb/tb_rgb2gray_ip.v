@@ -80,9 +80,7 @@ module tb_rgb2gray_ip;
         out_idx = 0;
 
         #20 rst_n = 1;
-        #10;
-
-        @(posedge clk);
+        repeat(5) @(posedge clk);
         start = 1;
         @(posedge clk);
         start = 0;

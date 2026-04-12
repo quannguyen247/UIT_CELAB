@@ -1,7 +1,8 @@
 // ============================================================================
 // Ten file : median_ip.v
 // Mo ta    : IP wrapper tich hop Line Buffer de quan ly du lieu dang stream 
-//            cho core median. Dong bo hoa pipeline delay cho toa do.
+//            cho core median.
+//            Dong bo hoa pipeline delay cho toa do.
 // ============================================================================
 `timescale 1ns / 1ps
 
@@ -41,6 +42,25 @@ module median_ip #(
     // Kich thuoc dong tinh ca 2 pixel padding
     localparam integer MAX_PAD_WIDTH = MAX_WIDTH + 2;
 
+    // ========================================================================
+    // KHOI RESET SYNCHRONIZER
+    // Dong bo hoa tin hieu reset bat dong bo (rst_n) sang mien xung nhip clk 
+    // de tranh hien tuong metastability. Reset duoc dua xuong muc 0 ngay lap 
+    // tuc, nhung duoc keo len muc 1 dong bo voi canh len cua clk.
+    // ========================================================================
+    reg rst_n_meta;
+    reg rst_n_sync;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            rst_n_meta <= 1'b0;
+            rst_n_sync <= 1'b0;
+        end else begin
+            rst_n_meta <= 1'b1;
+            rst_n_sync <= rst_n_meta;
+        end
+    end
+
     // Line Buffer luu tru 2 hang pixel gan nhat
     reg [7:0] linebuf1 [0:MAX_PAD_WIDTH-1];
     reg [7:0] linebuf2 [0:MAX_PAD_WIDTH-1];
@@ -56,6 +76,10 @@ module median_ip #(
     reg [31:0] input_count;
     reg [31:0] output_count;
 
+    // Thanh ghi luu tru tinh toan thong so anh de truyen vao core
+    reg [15:0] width_m1;
+    reg [15:0] height_m1;
+
     // Tin hieu trung gian truoc khi vao core
     reg        pending_valid;
     reg [15:0] pending_row;
@@ -66,7 +90,7 @@ module median_ip #(
     wire [15:0] padded_height = height + 16'd2;
     
     wire [31:0] total_out = width * height;
-    
+
     // Tai su dung total_out, thay phep nhan bang dich bit va phep cong
     wire [31:0] total_in  = total_out + {15'b0, width, 1'b0} + {15'b0, height, 1'b0} + 32'd4;
 
@@ -84,18 +108,20 @@ module median_ip #(
 
     median u_median (
         .clk            (clk),
-        .rst_n          (rst_n),
+        .rst_n          (rst_n_sync), // Su dung reset da dong bo
         .start_load     (start_load),
         .border_data_in (border_data_in),
         .load_done      (load_done),
         .in_valid       (pending_valid),
+      
         .p00(w00), .p01(w01), .p02(w02),
         .p10(w10), .p11(w11), .p12(w12),
         .p20(w20), .p21(w21), .p22(w22),
         .row            (pending_row),
         .col            (pending_col),
-        .width          (width),
-        .height         (height),
+        .width_m1       (width_m1),
+        .height_m1      (height_m1),
+       
         .border         (border),
         .out_valid      (median_out_valid),
         .out_pixel      (median_out)
@@ -109,24 +135,27 @@ module median_ip #(
     reg [15:0] s1_col, s2_col, s3_col;
 
     always @(posedge clk) begin
-        s1_row <= pending_row; s2_row <= s1_row; s3_row <= s2_row;      
+        s1_row <= pending_row;
+        s2_row <= s1_row; s3_row <= s2_row;      
         s1_col <= pending_col; s2_col <= s1_col; s3_col <= s2_col;
     end
 
     // ========================================================================
     // LOGIC DIEU KHIEN CHINH VA LINE BUFFER
     // ========================================================================
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always @(posedge clk or negedge rst_n_sync) begin
+        if (!rst_n_sync) begin
             input_count   <= 32'd0;
             output_count  <= 32'd0;
             pending_valid <= 1'b0;
             out_valid     <= 1'b0;
             busy          <= 1'b0;
             done          <= 1'b0;
+            width_m1      <= 16'd0;
+            height_m1     <= 16'd0;
         end else begin
             done          <= 1'b0;
-            pending_valid <= 1'b0; // Auto-clear tung chu ky
+            pending_valid <= 1'b0; // Tu dong xoa theo tung chu ky
             
             // Xac nhan data tu pipeline ra port chinh cua IP
             out_valid <= median_out_valid;
@@ -149,6 +178,10 @@ module median_ip #(
                     input_count   <= 32'd0;
                     output_count  <= 32'd0;
                     pending_valid <= 1'b0;
+                    
+                    // Tien tinh toan giam tai logic cho core
+                    width_m1      <= width - 16'd1;
+                    height_m1     <= height - 16'd1;
                     
                     // Bat loi cau hinh sai
                     if ((width == 16'd0) || (height == 16'd0) || (width > MAX_WIDTH[15:0])) begin
