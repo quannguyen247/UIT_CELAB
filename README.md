@@ -17,8 +17,8 @@
 
 ### Bài 2 - RGB to Grayscale (không dùng `for/while` trong Verilog)
 - Chuyển ảnh RGB sang dữ liệu bitmap/text để đưa vào khối Verilog.
-- Dùng công thức chuẩn grayscale: **Y = 0.299R + 0.587G + 0.114B**.
-- Có tham số điều chỉnh độ sáng (**brightness**) trong mã Verilog.
+- Dùng công thức chuẩn màu grayscale theo tiêu chuẩn NTSC: **Y = 0.299R + 0.587G + 0.114B**.
+- Có tham số điều chỉnh độ sáng (**brightness**) trong mã Verilog (không nhập xem như không thay đổi độ sáng).
 
 ---
 
@@ -27,10 +27,10 @@
 - `doc/`: đề bài `HDL-Lab2.pdf` và ảnh mẫu đầu vào.
 - `rtl/`: mã RTL chính (`median.v`, `median_ip.v`, `rgb2gray.v`, `rgb2gray_ip.v`).
 - `tb/`: testbench tích hợp cho 2 IP (`tb_median_ip.v`, `tb_rgb2gray_ip.v`).
-- `script/`: tiền xử lý, flow mô phỏng, hậu xử lý, so sánh chất lượng.
-- `sta/`: project Quartus + ràng buộc timing cho 2 bài (`median`, `rgb2gray`).
-- `sim/`: thư mục mô phỏng ModelSim (tự tạo khi chạy).
-- `temp/`: dữ liệu trung gian và ảnh kết quả (tự tạo khi chạy).
+- `script/`: tiền xử lý (`pre1.py, pre2.py`), flow mô phỏng (`flow1.tcl, flow2.tcl`), hậu xử lý (`post1.py, post2.py`), so sánh chất lượng (`cmp.py`).
+- `sta/`: chứa project Quartus (`sta/*`) + ràng buộc timing (`sta/*/constraint/*.sdc`).
+- `sim/`: thư mục mô phỏng ModelSim (tự tạo khi chạy luồng mô phỏng).
+- `temp/`: dữ liệu trung gian và ảnh kết quả (tự tạo khi chạy luồng mô phỏng).
 
 ---
 
@@ -38,7 +38,7 @@
 
 - Python 3.10+.
 - Thư viện Python: `numpy`, `opencv-python`, `scikit-image`.
-- ModelSim/QuestaSim (có lệnh `vlog`, `vsim`).
+- ModelSim/QuestaSim (gán đường dẫn vào shell đang dùng sao cho có lệnh `vlog`, `vsim` hoặc không sẽ phát sinh lỗi khi chạy script).
 - Quartus II 13.0sp1 (phục vụ STA trong `flow1.tcl` và `flow2.tcl`).
 
 Cài nhanh thư viện Python:
@@ -77,12 +77,12 @@ Flow này tự động: `pre1.py` -> mô phỏng `tb_median_ip` -> STA (`sta/med
 ### 5.2 Flow Bài 2 (RGB to Grayscale + brightness)
 
 ```bash
-vsim -c -do "do script/flow2.tcl doc/baitap2_anhgoc.jpg temp/lab2_out.jpg 20"
+vsim -c -do "do script/flow2.tcl doc/baitap2_anhgoc.jpg temp/lab2_out.jpg 36"
 ```
 
-Trong đó `20` là brightness (miền hợp lệ: `-128..127`).
+Trong đó `36` là brightness (miền hợp lệ: `-128..127`).
 
-Nếu bỏ trống tham số này thì mặc định chọn tham số fallback là 0 (không thay đổi độ sáng).
+Nếu bỏ trống tham số này thì mặc định chọn tham số fallback là 0 (không thay đổi độ sáng của ảnh).
 
 Flow này tự động: `pre2.py` -> mô phỏng `tb_rgb2gray_ip` -> STA (`sta/rgb2gray`) -> `post2.py`.
 
@@ -97,6 +97,6 @@ Flow này tự động: `pre2.py` -> mô phỏng `tb_rgb2gray_ip` -> STA (`sta/r
   - Input trung gian: `temp/input_rgb.txt`, `temp/meta2.json`
   - Output mô phỏng: `temp/output_gray.txt`
 
-Ảnh kết quả cuối nằm ở đường dẫn output truyền vào `flow1.tcl` hoặc `flow2.tcl`.
+Ảnh kết quả cuối nằm ở đường dẫn output truyền vào `flow1.tcl` hoặc `flow2.tcl`, theo 2 ví dụ chạy script ở trên thì nằm ở trong temp/ .
 
 ---
