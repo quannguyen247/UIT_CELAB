@@ -62,7 +62,7 @@ puts "==========================================================================
 
 if {![file exists sim/work]} { vlib sim/work }
 
-vlog -work sim/work rtl/rgb2gray.v rtl/rgb2gray_ip.v tb/tb_rgb2gray.v tb/tb_rgb2gray_ip.v
+vlog -work sim/work rtl/rgb2gray.v rtl/rgb2gray_ip.v tb/tb_rgb2gray_ip.v
 vsim -c -wlf sim/vsim.wlf sim/work.tb_rgb2gray_ip +WIDTH=$width +HEIGHT=$height +BRIGHTNESS=$brightness
 
 run -all
@@ -74,26 +74,26 @@ puts "==========================================================================
 
 cd sta/rgb2gray
 
-puts "  Dang chay Quartus Map (Analysis & Synthesis)..."
+puts " Dang chay Quartus Map (Analysis & Synthesis)..."
 if {[catch {exec $quartus_env/quartus_map rgb2gray > map.log} err]} { 
     puts "Loi Map:\n$err"
     quit -f -code 1 
 }
-puts "   -> Analysis & Synthesis hoan tat thanh cong!"
+puts "  -> Analysis & Synthesis hoan tat thanh cong!"
 
-puts "  Dang chay Quartus Fit (Place & Route)..."
+puts " Dang chay Quartus Fit (Place & Route)..."
 if {[catch {exec $quartus_env/quartus_fit rgb2gray > fit.log} err]} { 
     puts "Loi Fit:\n$err"
     quit -f -code 1 
 }
-puts "   -> Place & Route hoan tat thanh cong!"
+puts "  -> Place & Route hoan tat thanh cong!"
 
-puts "  Dang chay TimeQuest Timing Analyzer (STA)..."
+puts " Dang chay TimeQuest Timing Analyzer (STA)..."
 if {[catch {exec $quartus_env/quartus_sta rgb2gray > sta.log} err]} { 
     puts "Loi STA:\n$err"
     quit -f -code 1
 } 
-puts "   -> Timing Analysis hoan tat thanh cong!\n"
+puts "  -> Timing Analysis hoan tat thanh cong!\n"
 
 puts "----------- BAO CAO TIMING CHI TIET -----------"
 quietly set found_info 0

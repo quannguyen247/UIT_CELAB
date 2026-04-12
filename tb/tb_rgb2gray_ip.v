@@ -18,7 +18,7 @@ module tb_rgb2gray_ip;
     reg sim_done;
 
     integer WIDTH, HEIGHT;
-    reg signed [7:0] brightness;
+    reg signed [7:0] BRIGHTNESS;
     
     reg in_valid;
     reg [7:0] in_r, in_g, in_b;
@@ -35,7 +35,7 @@ module tb_rgb2gray_ip;
         .start(start),
         .width(WIDTH[15:0]),
         .height(HEIGHT[15:0]),
-        .brightness(brightness),
+        .brightness(BRIGHTNESS),
         .in_valid(in_valid),
         .in_r(in_r),
         .in_g(in_g),
@@ -57,7 +57,14 @@ module tb_rgb2gray_ip;
     integer i, out_idx, total_pixels, fd;
 
     initial begin
-        $display("Cau hinh phan cung -> WIDTH:%0d, HEIGHT:%0d, BRIGHTNESS:%0d", WIDTH, HEIGHT, brightness);
+        if (!$value$plusargs("WIDTH=%d", WIDTH)    || 
+            !$value$plusargs("HEIGHT=%d", HEIGHT)  || 
+            !$value$plusargs("BRIGHTNESS=%d", BRIGHTNESS)) begin
+            $display("Loi: Thieu tham so dong lenh.");
+            $finish;
+        end
+        $display("Cau hinh phan cung -> WIDTH:%0d, HEIGHT:%0d, BRIGHTNESS:%0d", WIDTH, HEIGHT, BRIGHTNESS);
+        
         total_pixels = WIDTH * HEIGHT;
 
         for (i = 0; i < MAX_WIDTH * MAX_HEIGHT; i = i + 1) begin
@@ -100,13 +107,13 @@ module tb_rgb2gray_ip;
 
         fd = $fopen("temp/output_gray.txt", "w");
         if (fd == 0) begin
-            $display("Loi: Khong the tao file ghi ket qua.");
+            $display("Loi: Khong the tao file output_gray.txt.");
             $finish;
         end
         $writememh("temp/output_gray.txt", mem_out, 0, total_pixels - 1);
         $fclose(fd);
         
-        $display("Mo phong hoan tat. Ket qua da duoc luu lai.");
+        $display("Mo phong hoan tat. Du lieu da duoc ghi vao output_gray.txt");
         sim_done = 1;
     end
 

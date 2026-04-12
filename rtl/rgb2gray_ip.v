@@ -1,10 +1,10 @@
+// ============================================================================
+// Ten file : rgb2gray_ip.v
+// Mo ta    : IP wrapper quan ly du lieu dang stream cho core rgb2gray.
+//            Tich hop bo tien tinh toan thong so khung hinh va pixel.
+// ============================================================================
 `timescale 1ns / 1ps
 
-// =========================================================================
-// Module: rgb2gray_ip
-// Chuc nang: Wrapper giao tiep muc he thong cho module rgb2gray
-// Kien truc: Dieu khien luong du lieu (Stream) ket hop tien tinh toan
-// =========================================================================
 module rgb2gray_ip (
     input  wire         clk,
     input  wire         rst_n,

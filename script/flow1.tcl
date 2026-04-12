@@ -60,7 +60,7 @@ puts "==========================================================================
 if {![file exists sim/work]} { vlib sim/work }
 
 # Bien dich toan bo RTL va Testbench
-vlog -work sim/work rtl/median.v rtl/median_ip.v tb/tb_median.v tb/tb_median_ip.v
+vlog -work sim/work rtl/median.v rtl/median_ip.v tb/tb_median_ip.v
 
 # Chay mo phong voi tb_median_ip la module Top
 vsim -c -wlf sim/vsim.wlf sim/work.tb_median_ip +WIDTH=$width +HEIGHT=$height +BORDER=$border

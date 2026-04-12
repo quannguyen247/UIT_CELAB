@@ -70,7 +70,13 @@ module tb_median_ip;
     integer i, total_in_pixels, fd;
 
     initial begin
-        // Buoc 1: Nhan tham so truyen vao tu script
+        // Buoc 1: Kiem tra tham so truyen vao tu script
+        if (!$value$plusargs("WIDTH=%d", WIDTH)    || 
+            !$value$plusargs("HEIGHT=%d", HEIGHT)  || 
+            !$value$plusargs("BORDER=%d", BORDER)) begin
+            $display("Loi: Thieu tham so dong lenh.");
+            $finish;
+        end
         $display("Cau hinh phan cung -> WIDTH:%0d, HEIGHT:%0d, BORDER:%0d", WIDTH, HEIGHT, BORDER);
         
         total_in_pixels = (WIDTH + 2) * (HEIGHT + 2);
