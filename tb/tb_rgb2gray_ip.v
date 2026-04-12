@@ -51,7 +51,7 @@ module tb_rgb2gray_ip;
     initial begin
         clk = 0;
         sim_done = 0;
-        while (!sim_done) #10 clk = ~clk; 
+        while (!sim_done) #3.333 clk = ~clk; 
     end
 
     integer i, out_idx, total_pixels, fd;
@@ -105,13 +105,13 @@ module tb_rgb2gray_ip;
 
         fd = $fopen("temp/output_gray.txt", "w");
         if (fd == 0) begin
-            $display("Loi: Khong the tao file output_gray.txt.");
+            $display("Loi: Khong the tao file temp/output_gray.txt.");
             $finish;
         end
         $writememh("temp/output_gray.txt", mem_out, 0, total_pixels - 1);
         $fclose(fd);
         
-        $display("Mo phong hoan tat. Du lieu da duoc ghi vao output_gray.txt");
+        $display("Mo phong hoan tat. Du lieu da duoc ghi vao temp/output_gray.txt");
         sim_done = 1;
     end
 

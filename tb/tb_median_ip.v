@@ -144,13 +144,13 @@ module tb_median_ip;
         // Buoc 7: Ghi ket qua ra file txt
         fd = $fopen("temp/output_median.txt", "w");
         if (fd == 0) begin
-            $display("Loi: Khong the tao file output_median.txt");
+            $display("Loi: Khong the tao file temp/output_median.txt");
             $finish;
         end
         $writememh("temp/output_median.txt", mem_out, 0, (WIDTH * HEIGHT) - 1);
         $fclose(fd);
         
-        $display("Mo phong hoan tat. Du lieu da duoc ghi vao output_median.txt");
+        $display("Mo phong hoan tat. Du lieu da duoc ghi vao temp/output_median.txt");
         sim_done = 1;
     end
 
