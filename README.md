@@ -82,6 +82,8 @@ vsim -c -do "do script/flow2.tcl doc/baitap2_anhgoc.jpg temp/lab2_out.jpg 20"
 
 Trong đó `20` là brightness (miền hợp lệ: `-128..127`).
 
+Nếu bỏ trống tham số này thì mặc định chọn tham số fallback là 0 (không thay đổi độ sáng).
+
 Flow này tự động: `pre2.py` -> mô phỏng `tb_rgb2gray_ip` -> STA (`sta/rgb2gray`) -> `post2.py`.
 
 ---
