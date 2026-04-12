@@ -1,58 +1,100 @@
 # Thiết kế hệ thống số với HDL - CE213.Q21.VMTN
-## LAB 2: Xử lý Ảnh trên phần cứng (RGB to Grayscale & Median Filter)
+## LAB 2: Xử lý ảnh trên phần cứng (Median Filter & RGB to Grayscale)
 
 ### THÔNG TIN NHÓM THỰC HIỆN
+- **Giảng viên hướng dẫn:** Ngô Hiếu Trường
 - **Sinh viên 1:** Huỳnh Nhật Phát - MSSV: 24521294
 - **Sinh viên 2:** Nguyễn Đông Quân - MSSV: 24521438
-- **Giảng viên hướng dẫn:** Ngô Hiếu Trường
-- **Môn học:** Thiết kế hệ thống số với HDL - CE213.Q21.VMTN
 
 ---
 
-### 1. CẤU TRÚC THƯ MỤC VÀ CHỨC NĂNG
+## 1. Mục tiêu theo đề HDL-Lab2.pdf
 
-Dự án được cố tình chia thành nhiều thư mục khác nhau để đảm phảo tính module, dễ quản lý luồng dữ liệu giữa phần mềm (Python) và phần cứng (Verilog):
+### Bài 1 - Median Filter (không dùng `for/while` trong Verilog)
+- Tiền xử lý ảnh grayscale sang dữ liệu text cho testbench.
+- Hiện thực bộ lọc trung vị trên Verilog, đọc input text và ghi output text.
+- Hậu xử lý text về ảnh, đánh giá chất lượng bằng **PSNR** và **SSIM**.
 
-* **`doc/`**: Chứa đề bài (`HDL-Lab2.pdf`) và các tệp hình ảnh đầu vào (ảnh gốc, ảnh nhiễu) dùng để test module.
-* **`rtl/`**: Thư mục lõi chứa mã nguồn thiết kế phần cứng bằng ngôn ngữ Verilog gồm các module chính (`rgb2gray.v`, `median.v`).
-* **`tb/`**: Không gian dành cho các bộ Testbench (`tb_rgb2gray.v`, `tb_median.v`). Các testbench này cung cấp tín hiệu kích thích (stimuli) mô phỏng từ file text để kiểm tra logic của khối RTL.
-* **`script/`**: Tập hợp các công cụ tự động hóa chạy bằng Python và Tcl:
-  * Khâu tiền xử lý (Pre-processing): `pre1.py`, `pre2.py` để chuyển đổi ảnh từ `doc/` sang ma trận điểm ảnh dạng text hex/binary.
-  * Tự động hóa mô phỏng (Simulation flow): `flow1.tcl`, `flow2.tcl` là kịch bản chạy mô phỏng ModelSim tự động.
-  * Khâu hậu xử lý (Post-processing): `post1.py`, `post2.py` tái tạo lại ảnh kết quả từ text xuất ra sau mô phỏng.
-  * Xác thực: `cmp.py` dùng để so sánh tự động bản phần cứng với chuẩn phần mềm nhằm đánh giá sai số.
-* **`sim/`**: Thư mục làm việc (working directory) của ModelSim/QuestaSim. Nơi chứa file database compiled (thư mục `work/`), `transcript`, v.v.
-* **`temp/`**: Không gian trao đổi dữ liệu tạm (buffer) giữa môi trường phần mềm và môi trường sim. Chứa các file `pattern.txt`, `input_*.txt`, `output_*.txt`,... mà Testbench sẽ đọc/ghi vào.
+### Bài 2 - RGB to Grayscale (không dùng `for/while` trong Verilog)
+- Chuyển ảnh RGB sang dữ liệu bitmap/text để đưa vào khối Verilog.
+- Dùng công thức chuẩn grayscale: **Y = 0.299R + 0.587G + 0.114B**.
+- Có tham số điều chỉnh độ sáng (**brightness**) trong mã Verilog.
 
 ---
 
-### 2. WORKFLOW (LUỒNG CHẠY CHƯƠNG TRÌNH STEP-BY-STEP)
+## 2. Cấu trúc thư mục (tóm tắt)
 
-Quy trình sử dụng chương trình hoàn thiện tuân thủ Data Flow sau:
-**Python (Image -> Text) -> ModelSim (Text -> Text, chạy RTL) -> Python (Text -> Image)**
+- `doc/`: đề bài `HDL-Lab2.pdf` và ảnh mẫu đầu vào.
+- `rtl/`: mã RTL chính (`median.v`, `median_ip.v`, `rgb2gray.v`, `rgb2gray_ip.v`).
+- `tb/`: testbench tích hợp cho 2 IP (`tb_median_ip.v`, `tb_rgb2gray_ip.v`).
+- `script/`: tiền xử lý, flow mô phỏng, hậu xử lý, so sánh chất lượng.
+- `sta/`: project Quartus + ràng buộc timing cho 2 bài (`median`, `rgb2gray`).
+- `sim/`: thư mục mô phỏng ModelSim (tự tạo khi chạy).
+- `temp/`: dữ liệu trung gian và ảnh kết quả (tự tạo khi chạy).
 
-#### **Bước 1: Tiền xử lý (Pre-Processing)**
-Mục đích: Chuyển đổi file ảnh `.jpg`/`.png` thành định dạng mã hex/binary để Testbench có thể `$readmemh`/`$readmemb`.
-- Mở Terminal (cmd/powershell).
-- Chạy: `python script/pre1.py` (hoặc `pre2.py` tương ứng cho mỗi bài).
-- Kiểm tra mục `temp/` để đảm bảo file `pattern.txt` (ma trận ảnh) và `meta.json` (thông số w/h) đã được tạo ra.
+---
 
-#### **Bước 2: Chạy Mô phỏng (Simulation)**
-Mục đích: Khởi động mô hình phần cứng, nạp dữ liệu pixel, xử lý logic (chuyển đổi Gray hoặc lọc Median), và lưu kết quả lại ra file log.
-- Mở terminal/CMD ở giao diện có chứa ModelSim/MSYS2/Tcl.
-- Hoặc mở ứng dụng ModelSim trực tiếp. Change directory (cd) về thư mục root hoặc thư mục `sim/`.
-- Thực thi kịch bản tcl: 
-  `vsim -do script/flow1.tcl` (Hoặc gõ `do script/flow1.tcl` ngay trong cửa sổ Transcript của ModelSim).
-- ModelSim sẽ tự compile code RTL (`rtl/`) và TB (`tb/`), chạy mô phỏng và Testbench sẽ bắt đầu ghi vào tập tin log dạng text xuất ra thư mục `temp/output_*.txt`.
+## 3. Yêu cầu môi trường
 
-#### **Bước 3: Hậu xử lý (Post-Processing)**
-Mục đích: Build lại hình ảnh thực tế từ các giá trị pixel rời rạc mà Verilog trả về.
-- Chạy: `python script/post1.py` (hoặc `post2.py`).
-- Script sẽ lấy chuỗi hex/binary từ `temp/` tái tạo thành ảnh kết quả (Ví dụ `output.png`).
+- Python 3.10+.
+- Thư viện Python: `numpy`, `opencv-python`, `scikit-image`.
+- ModelSim/QuestaSim (có lệnh `vlog`, `vsim`).
+- Quartus II 13.0sp1 (phục vụ STA trong `flow1.tcl` và `flow2.tcl`).
 
-#### **Bước 4: Xác thực và Đối chiếu (Testing & Compare)**
-Mục đích: Đảm bảo độ chính xác so với mô hình tham chiếu thực tế.
-- Chạy: `python script/cmp.py`.
-- Script tiến hành tính sai số (Error diff / MSE) giữa ảnh phần cứng chạy được và thuật toán tham chiếu chạy trực tiếp trên python.
+Cài nhanh thư viện Python:
+
+```bash
+pip install numpy opencv-python scikit-image
+```
+
+---
+
+## 4. Cách chạy nhanh (khuyến nghị)
+
+Chạy menu tương tác:
+
+```bash
+python script/run_all.py
+```
+
+Menu cho phép:
+- chạy riêng Bài 1,
+- chạy riêng Bài 2,
+- hoặc chạy liên tục cả hai bài.
+
+---
+
+## 5. Cách chạy trực tiếp từng flow
+
+### 5.1 Flow Bài 1 (Median + so sánh PSNR/SSIM)
+
+```bash
+vsim -c -do "do script/flow1.tcl doc/baitap1_nhieu.jpg temp/lab1_out.jpg doc/baitap1_anhgoc.jpg"
+```
+
+Flow này tự động: `pre1.py` -> mô phỏng `tb_median_ip` -> STA (`sta/median`) -> `post1.py` -> `cmp.py`.
+
+### 5.2 Flow Bài 2 (RGB to Grayscale + brightness)
+
+```bash
+vsim -c -do "do script/flow2.tcl doc/baitap2_anhgoc.jpg temp/lab2_out.jpg 20"
+```
+
+Trong đó `20` là brightness (miền hợp lệ: `-128..127`).
+
+Flow này tự động: `pre2.py` -> mô phỏng `tb_rgb2gray_ip` -> STA (`sta/rgb2gray`) -> `post2.py`.
+
+---
+
+## 6. Tệp vào/ra chính
+
+- Bài 1 (Median):
+  - Input trung gian: `temp/input_median.txt`, `temp/pattern.txt`, `temp/meta1.json`
+  - Output mô phỏng: `temp/output_median.txt`
+- Bài 2 (RGB2Gray):
+  - Input trung gian: `temp/input_rgb.txt`, `temp/meta2.json`
+  - Output mô phỏng: `temp/output_gray.txt`
+
+Ảnh kết quả cuối nằm ở đường dẫn output truyền vào `flow1.tcl` hoặc `flow2.tcl`.
 
 ---
