@@ -71,7 +71,7 @@ def main():
     if not cv2.imwrite(str(final_output_path), final_image):
         print(f" Loi: Khong the ghi anh dau ra tai {final_output_path_display}")
         sys.exit(1)
-    print(f"Khoi phuc anh thanh cong va da luu tai {final_output_path_display}")
+    print(f" Khoi phuc anh thanh cong va da luu tai {final_output_path_display}")
 
 if __name__ == "__main__":
     main()
