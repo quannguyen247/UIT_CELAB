@@ -36,10 +36,10 @@ def main():
     ssim_value = calculate_ssim(img1, img2, channel_axis=-1)
 
     # Hien thi ket qua danh gia ro rang
-    print(f"Anh goc: {ref_image_path}")
-    print(f"Anh da xu ly: {proc_image_path}")
-    print(f"PSNR: {psnr_value:.4f} dB")
-    print(f"SSIM: {ssim_value:.4f}")
+    print(f" Anh goc: {ref_image_path}")
+    print(f" Anh da xu ly: {proc_image_path}")
+    print(f" PSNR: {psnr_value:.4f} dB")
+    print(f" SSIM: {ssim_value:.4f}")
 
 if __name__ == "__main__":
     main()

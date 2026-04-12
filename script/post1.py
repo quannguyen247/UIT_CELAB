@@ -18,7 +18,7 @@ def main():
     hw_input_txt = temp_dir / "output_median.txt"
     json_path = temp_dir / "meta1.json"
 
-    print("Bat dau khoi phuc anh tu ma hex")
+    print(" Bat dau khoi phuc anh tu ma hex")
     
     # Doc metadata tu file json de lay chieu cao va rong
     with open(json_path, 'r') as f:
@@ -31,7 +31,7 @@ def main():
     if hw_input_txt.exists():
         input_file = hw_input_txt
     else:
-        print(f"Loi: Khong tim thay file output_median.txt tai {hw_input_txt}")
+        print(f" Loi: Khong tim thay file output_median.txt tai {hw_input_txt}")
         sys.exit(1)
     
     hex_data = []
@@ -54,11 +54,11 @@ def main():
                     unknown_count += 1
 
     if unknown_count > 0:
-        print(f"Canh bao: Co {unknown_count} pixel o trang thai x/z, da thay bang 00.")
+        print(f" Canh bao: Co {unknown_count} pixel o trang thai x/z, da thay bang 00.")
         
     # Xac thuc so luong pixel co khop voi kich thuoc anh khong
     if len(hex_data) != (h * w):
-        print(f"Loi: So luong pixel khong khop. Mong doi {h * w}, nhan duoc {len(hex_data)}.")
+        print(f" Loi: So luong pixel khong khop. Mong doi {h * w}, nhan duoc {len(hex_data)}.")
         sys.exit(1)
         
     # Parse du lieu tu hex ve mang numpy 2 chieu (anh grayscale 8-bit)
@@ -67,9 +67,9 @@ def main():
 
     # Ghi anh ket qua vao o dia
     if not cv2.imwrite(str(final_output_path), final_image):
-        print(f"Loi: Khong the ghi anh dau ra tai {final_output_path_display}")
+        print(f" Loi: Khong the ghi anh dau ra tai {final_output_path_display}")
         sys.exit(1)
-    print(f"Khoi phuc anh thanh cong va da luu tai {final_output_path_display}")
+    print(f" Khoi phuc anh thanh cong va da luu tai {final_output_path_display}")
 
 if __name__ == "__main__":
     main()

@@ -97,8 +97,9 @@ def main():
         # Truong hop nay se loc median tren toan bo anh voi BORDER=0.
         print("Canh bao: Khong phat hien vien dong nhat, dat BORDER=0.")
 
-    if border > 64:
-        print(f"Loi: Do day vien ({border}px) vuot qua gioi han 64px.")
+    # THAY DOI: Gioi han xuong 32 thay vi 64
+    if border > 32:
+        print(f"Loi: Do day vien ({border}px) vuot qua gioi han 32px cho kien truc pipeline moi.")
         sys.exit(1)
         
     # Ghi thong tin kich thuoc ra file JSON
@@ -145,13 +146,16 @@ def main():
         for pixel_val in padded_img.flatten():
             f.write(f"{pixel_val:02x}\n")
             
-    # Xuat mau vien ra file hex (dien so 0 neu chua toi 64)
+    # XU LY FORMAT CHO PATTERN: 32 pixel -> 8 dong x 32-bit
+    # Lap day mang len du 32 pixel (bang 0) neu vien mong hon 32
+    colors_32 = ring_colors_grayscale[:32] + [0]*(32 - len(ring_colors_grayscale))
+    
     with open(pattern_output_path, 'w') as f:
-        for i in range(64):
-            if i < border:
-                f.write(f"{ring_colors_grayscale[i]:02x}\n")
-            else:
-                f.write("00\n")
+        # Nhay buoc 4 de gom 4 pixel 8-bit thanh 1 block 32-bit
+        for i in range(0, 32, 4):
+            # Dich bit ghep 4 pixel lai, pixel i nam o LSB (phu hop logic dich bit tren Verilog)
+            word32 = (colors_32[i+3] << 24) | (colors_32[i+2] << 16) | (colors_32[i+1] << 8) | colors_32[i]
+            f.write(f"{word32:08x}\n")
             
     print(f"Kich thuoc cho testbench -> WIDTH: {w}, HEIGHT: {h}, BORDER: {border}")
 
