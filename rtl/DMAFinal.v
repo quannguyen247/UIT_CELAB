@@ -2,38 +2,28 @@
 `include "dma_defs.vh"
 
 module DMAFinal(
-    input  wire        iClk,
-    input  wire        iReset_n,
-    input  wire        iChipselect_n,
-    input  wire        iRead,
-    input  wire        iWrite,
-    input  wire [2:0]  iAddress,
-    input  wire [31:0] iWritedata,
+    input wire iClk,
+    input wire iReset_n,
+    input wire iChipselect_n,
+    input wire iRead,
+    input wire iWrite,
+    input wire [2:0] iAddress,
+    input wire [31:0] iWritedata,
     output wire [31:0] oReaddata,
-    input  wire        iRM_readdatavalid,
-    input  wire        iRM_waitrequest,
-    input  wire [31:0] iRM_readdata,
-    output wire        oRM_read,
+    input wire iRM_readdatavalid,
+    input wire iRM_waitrequest,
+    input wire [31:0] iRM_readdata,
+    output wire oRM_read,
     output wire [31:0] oRM_readaddress,
-    input  wire        iWM_waitrequest,
-    output wire        oWM_write,
+    input wire iWM_waitrequest,
+    output wire oWM_write,
     output wire [31:0] oWM_writeaddress,
     output wire [31:0] oWM_writedata,
-    output wire        oIRQ
+    output wire oIRQ
 );
 
-    wire [31:0] RM_startaddress;
-    wire [31:0] WM_startaddress;
-    wire [31:0] length;
-    wire        start;
-    wire        WM_done;
-
-    wire        FF_almostfull;
-    wire        FF_empty;
-    wire        FF_writerequest;
-    wire        FF_readrequest;
-    wire [31:0] FF_data;
-    wire [31:0] FF_q;
+    wire start, WM_done, FF_empty, FF_almostfull, FF_readrequest, FF_writerequest;
+    wire [31:0] RM_startaddress, WM_startaddress, length, FF_data, FF_q;
 
     control_slave control(
         .iClk(iClk),
