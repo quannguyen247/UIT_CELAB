@@ -2,26 +2,26 @@
 `include "dma_defs.vh"
 
 module write_master(
-    input  wire        iClk,
-    input  wire        iReset_n,
-    input  wire        iStart,
-    input  wire [31:0] iWM_startaddress,
-    input  wire [31:0] iLength,
-    input  wire        iWM_waitrequest,
-    input  wire        iFF_empty,
-    input  wire [31:0] iFF_q,
-    output wire        oFF_readrequest,
-    output reg         oWM_done,
-    output reg         oWM_write,
-    output reg  [31:0] oWM_writeaddress,
-    output reg  [31:0] oWM_writedata
+    input wire iClk,
+    input wire iReset_n,
+    input wire iStart,
+    input wire [31:0] iWM_startaddress,
+    input wire [31:0] iLength,
+    input wire iWM_waitrequest,
+    input wire iFF_empty,
+    input wire [31:0] iFF_q,
+    output wire oFF_readrequest,
+    output reg oWM_done,
+    output reg oWM_write,
+    output reg [31:0] oWM_writeaddress,
+    output reg [31:0] oWM_writedata
 );
 
-    localparam [1:0] ST_IDLE  = 2'h0;
+    localparam [1:0] ST_IDLE = 2'h0;
     localparam [1:0] ST_WRITE = 2'h1;
-    localparam [1:0] ST_DONE  = 2'h2;
+    localparam [1:0] ST_DONE = 2'h2;
 
-    reg [1:0]  state;
+    reg [1:0] state;
     reg [31:0] WM_lastwriteaddress;
 
     assign oFF_readrequest = (iReset_n) && (!iFF_empty) && (state == ST_IDLE);
