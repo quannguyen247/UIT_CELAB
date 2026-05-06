@@ -1,0 +1,59 @@
+I. Yêu cầu của bài Lab (Mục tiêu & Điểm số)
+Bài lab yêu cầu bạn tự thiết kế một bộ điều khiển DMA (Direct Memory Access) và kiểm tra nó
+.
+Mức cơ bản (8 điểm): Hiểu được kiến trúc, giải thích được code và cơ chế hoạt động. Sử dụng source code được cấp để mô phỏng từng module của DMA trên phần mềm Modelsim.
+Lưu ý bắt buộc: Ảnh chụp kết quả mô phỏng phải thấy rõ ngày, tháng, năm và giờ, phút, giây trên máy tính
+.
+Mức tối đa (10 điểm): Thực hiện thêm yêu cầu chạy trên phần cứng thật (KIT DE2). Cụ thể là phải áp dụng công cụ Signal Tap II để bắt được tín hiệu DONE của thanh ghi cấu hình
+.
+
+--------------------------------------------------------------------------------
+II. Cấu trúc hệ thống cần thiết kế
+Bộ DMA của bạn sẽ bao gồm 4 module phần cứng cơ bản viết bằng Verilog, sau đó gộp chung lại và giao tiếp với CPU
+:
+FIFO: Bộ nhớ đệm trung gian (gồm 256 thanh ghi 32-bit)
+.
+Read Master: Khối chuyên làm nhiệm vụ đọc dữ liệu từ CPU đưa vào FIFO
+.
+Write Master: Khối lấy dữ liệu từ FIFO và ghi ra các bộ nhớ
+.
+Control Slave: Khối chứa các thanh ghi cấu hình để bật/tắt và điều phối tiến trình chạy của toàn bộ hệ thống DMA
+.
+
+--------------------------------------------------------------------------------
+III. Flow thực hiện chi tiết (Quy trình 4 bước)
+Bước 1: Lập trình Verilog và Mô phỏng Modelsim (Phần cứng) Ở bước này, bạn sử dụng source code trong tài liệu để mô tả hành vi của 4 module:
+Mô tả FIFO với các tín hiệu quản lý bộ nhớ trống (FF_empty), gần đầy (FF_almostfull), đọc và ghi
+.
+Mô tả khối Read Master với máy trạng thái (state 0, 1, 2) quản lý tăng địa chỉ đọc và đưa dữ liệu vào FIFO
+. -> Tiến hành chạy mô phỏng Modelsim và chụp ảnh
+.
+Mô tả khối Write Master với máy trạng thái kiểm tra ghi dữ liệu và xuất cờ Done khi hoàn thành
+. -> Tiến hành chạy mô phỏng Modelsim và chụp ảnh
+.
+Mô tả khối Control Slave để quản lý các địa chỉ đọc/ghi ban đầu, độ dài dữ liệu và cấu hình trạng thái
+. -> Tiến hành chạy mô phỏng Modelsim và chụp ảnh
+.
+Chốt Bước 1: Gộp cả 4 file module trên thành 1 file Verilog duy nhất (ví dụ tên là DMAFinal.v) để chuẩn bị đóng gói
+.
+Bước 2: Đóng gói Component và đưa vào Qsys
+Mở công cụ Qsys, chọn New Component
+.
+Nạp file tổng hợp DMAFinal.v vào thẻ Synthesis Files và ấn Analyze Synthesis Files
+.
+Cấu hình các cổng giao tiếp (Interfaces). Bạn sẽ cần tạo 5 giao tiếp: 1 Avalon Memory Mapped Slave, 2 Avalon Memory Mapped Master (cho read và write), 1 Clock Input và 1 Reset Input. Sau đó map (gắn) các tín hiệu của code vào tương ứng các giao tiếp này
+.
+Cuối cùng, móc nối bộ DMA tự chế này với vi xử lý (Nios II) và bộ nhớ thành một hệ thống hoàn chỉnh trên Qsys
+.
+Bước 3: Biên dịch hệ thống Quartus
+Trở lại phần mềm Quartus, tiến hành thiết lập các chân kết nối và biên dịch hệ thống (Compile) để tạo ra file phần cứng .sof
+. Nạp file này xuống KIT DE2.
+Bước 4: Viết Code C trên Eclipse để kiểm tra (Phần mềm)
+Khởi tạo project Nios II trên Eclipse
+.
+Viết code C sử dụng các macro IOWR_32DIRECT để truyền địa chỉ bắt đầu đọc, địa chỉ bắt đầu ghi, độ dài (length) và thanh ghi điều khiển xuống bộ DMA thông qua giao thức Avalon
+.
+Sử dụng vòng lặp Polling để đợi tín hiệu Done. Khi chạy xong, in mảng dữ liệu đích ra màn hình để xác nhận DMA đã chép đúng dữ liệu
+. (Lưu ý bắt Signal Tap II ở bước này để lấy 10 điểm
+)
+Bạn có muốn mình giải thích chi tiết hơn về logic máy trạng thái (state machine) của một khối cụ thể như Read Master / Write Master, hay bạn muốn đi thẳng vào hướng dẫn cấu hình chi tiết trên Qsys?
