@@ -2,8 +2,8 @@
 `include "dma_defs.vh"
 
 module control_slave (
-    input wire        iClk,
-    input wire        iReset_n,
+    input  wire        iClk,
+    input  wire        iReset_n,
     input  wire        iChipselect_n,
     input  wire        iWrite,
     input  wire        iRead,
@@ -74,13 +74,13 @@ module control_slave (
                 oIRQ   <= 1'b0;
             end
 
-            if (iMW_done) begin
+            if (iMW_done && busy) begin
                 busy <= 1'b0;
                 done <= 1'b1;
                 if (irq_en) begin
                     oIRQ <= 1'b1;
                 end
-                control <= 32'h0; 
+                control <= 32'h0;
             end
         end
     end

@@ -23,8 +23,11 @@ module read_master(
 
     reg [1:0]  state;
     reg [31:0] RM_lastwriteaddress;
+    reg        pending_read;
 
-    assign oFF_writerequest = (iReset_n) && (!iFF_almostfull) && (state == ST_IDLE) && iRM_readdatavalid;
+    wire read_accepted = (state == ST_WAIT) && !iRM_waitrequest;
+
+    assign oFF_writerequest = iReset_n && iRM_readdatavalid && (pending_read || read_accepted);
     assign oFF_data = iRM_readdata;
 
     always @(posedge iClk or negedge iReset_n) begin
@@ -33,16 +36,21 @@ module read_master(
             oRM_readaddress <= 32'h0;
             oRM_read <= 1'b0;
             RM_lastwriteaddress <= 32'h0;
+            pending_read <= 1'b0;
         end else begin
             if (iStart) begin
                 oRM_readaddress <= iRM_startaddress;
                 RM_lastwriteaddress <= iRM_startaddress + iLength;
                 oRM_read <= 1'b0;
                 state <= ST_IDLE;
-            end else if (!iFF_almostfull || (state != ST_IDLE)) begin
+                pending_read <= 1'b0;
+            end else begin
                 case (state)
                     ST_IDLE: begin
-                        state <= ST_REQ;
+                        oRM_read <= 1'b0;
+                        if (!pending_read && !iFF_almostfull && (oRM_readaddress != RM_lastwriteaddress)) begin
+                            state <= ST_REQ;
+                        end
                     end
                     ST_REQ: begin
                         if (oRM_readaddress == RM_lastwriteaddress) begin
@@ -61,6 +69,12 @@ module read_master(
                     end
                     default: state <= ST_IDLE;
                 endcase
+
+                if (iRM_readdatavalid && (pending_read || read_accepted)) begin
+                    pending_read <= 1'b0;
+                end else if (read_accepted) begin
+                    pending_read <= 1'b1;
+                end
             end
         end
     end

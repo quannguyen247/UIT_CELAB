@@ -38,7 +38,7 @@ module write_master(
             if (iStart) begin
                 oWM_writeaddress <= iWM_startaddress;
                 WM_lastwriteaddress <= iWM_startaddress + iLength;
-            end else if (!iFF_empty || (state != ST_IDLE)) begin
+            end else if ((!iFF_empty && (oWM_writeaddress != WM_lastwriteaddress)) || (state != ST_IDLE)) begin
                 case (state)
                     ST_IDLE: begin
                         state <= ST_WRITE;
@@ -46,14 +46,15 @@ module write_master(
                         oWM_writedata <= iFF_q;
                     end
                     ST_WRITE: begin
-                        if (WM_lastwriteaddress == (oWM_writeaddress + 32'd4)) begin
-                            state <= ST_DONE;
-                            oWM_done <= 1'b1;
-                        end
                         if (!iWM_waitrequest) begin
+                            if (WM_lastwriteaddress == (oWM_writeaddress + 32'd4)) begin
+                                state <= ST_DONE;
+                                oWM_done <= 1'b1;
+                            end else begin
+                                state <= ST_IDLE;
+                            end
                             oWM_writeaddress <= oWM_writeaddress + 32'd4;
                             oWM_write <= 1'b0;
-                            state <= ST_IDLE;
                         end
                     end
                     ST_DONE: begin
