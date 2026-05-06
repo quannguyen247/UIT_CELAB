@@ -2,28 +2,28 @@
 `include "dma_defs.vh"
 
 module read_master(
-    input  wire        iClk,
-    input  wire        iReset_n,
-    input  wire        iStart,
-    input  wire [31:0] iLength,
-    input  wire [31:0] iRM_startaddress,
-    input  wire        iRM_readdatavalid,
-    input  wire        iRM_waitrequest,
-    output reg         oRM_read,
-    output reg  [31:0] oRM_readaddress,
-    input  wire [31:0] iRM_readdata,
-    input  wire        iFF_almostfull,
-    output wire        oFF_writerequest,
+    input wire iClk,
+    input wire iReset_n,
+    input wire iStart,
+    input wire [31:0] iLength,
+    input wire [31:0] iRM_startaddress,
+    input wire iRM_readdatavalid,
+    input wire iRM_waitrequest,
+    output reg oRM_read,
+    output reg [31:0] oRM_readaddress,
+    input wire [31:0] iRM_readdata,
+    input wire iFF_almostfull,
+    output wire oFF_writerequest,
     output wire [31:0] oFF_data
 );
 
     localparam [1:0] ST_IDLE = 2'h0;
-    localparam [1:0] ST_REQ  = 2'h1;
+    localparam [1:0] ST_REQ = 2'h1;
     localparam [1:0] ST_WAIT = 2'h2;
 
-    reg [1:0]  state;
+    reg [1:0] state;
     reg [31:0] RM_lastwriteaddress;
-    reg        pending_read;
+    reg pending_read;
 
     wire read_accepted = (state == ST_WAIT) && !iRM_waitrequest;
 
