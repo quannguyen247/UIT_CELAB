@@ -49,7 +49,7 @@ module tb_control_slave();
         iRead = 0;
         iMW_done = 1'bx; 
         iAddress = 3'd7;
-        iWritedata = 32'd11;
+        iWritedata = 32'd27; // 11011
         
         #12; 
         iReset_n = 1;
@@ -87,6 +87,13 @@ module tb_control_slave();
         // Tat iMW_done, dsStatus về 0
         @(negedge iClk);
         iMW_done = 0;
+
+        // Kiem tra ngat
+        repeat(2) @(negedge iClk); 
+        iAddress = 3'd7; 
+        iRead = 1; 
+        @(negedge iClk) 
+        iRead = 0;  
 
         #30 $stop;
     end
