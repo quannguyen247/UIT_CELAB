@@ -1,0 +1,5 @@
+﻿Sử dụng ngôn ngữ Verilog HDL thiết kế bộ đếm như trên Hình 1-1 
+Bộ đếm đồng bộ reset không đồng bộ
+Viết theo 2 kiểu: Behavioral và Structural
+Không cần viết testbench
+Tham khảo trang 13 - HDL-Lab1.pdf

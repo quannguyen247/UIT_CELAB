@@ -1,0 +1,7 @@
+*.qws
+*.srf
+*.vwf.temp
+db/
+incremental_db/
+output_files/
+simulation/
