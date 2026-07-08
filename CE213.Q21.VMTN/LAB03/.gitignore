@@ -1,0 +1,10 @@
+**/__pycache__/
+**/*.pyc
+main/db
+main/output_files
+main/incremental_db
+main/.qsys_edit
+sim/
+temp/
+transcript
+/doc/DMAFinal
