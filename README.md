@@ -1,51 +1,38 @@
 # UIT CE LAB
 
-[![UIT](https://img.shields.io/badge/University-UIT--VNU--HCM-blue)](https://www.uit.edu.vn/)
-[![Major](https://img.shields.io/badge/Major-Computer%20Engineering-orange)]()
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+Nơi lưu trữ các bài thực hành (lab) trong chương trình đào tạo của khoa Kỹ thuật Máy tính, trường Đại học Công nghệ Thông tin - ĐHQG-HCM (UIT).
 
-Nơi lưu trữ các bài thực hành (Labs) thuộc các môn học của Khoa Kỹ thuật Máy tính - Trường Đại học Công nghệ Thông tin, ĐHQG-HCM (UIT).
-
-Kho lưu trữ này sẽ được **cập nhật liên tục** các bài thực hành của các môn CE trong chương trình đào tạo.
+> **Lưu ý**: Đây là kho lưu trữ phục vụ việc học tập cá nhân, chỉ bao gồm các bài thực hành môn học (lab) và được cập nhật liên tục.
 
 ---
 
-## 📂 Danh sách các môn học & Labs hiện tại
+## Quy ước cấu trúc thư mục
 
-### 1. CE213 - Thiết kế Hệ thống số (Digital System Design)
-Thư mục: [CE213.Q21.VMTN](CE213.Q21.VMTN)
+Để đảm bảo tính mở rộng và dễ theo dõi khi cập nhật thêm các môn học mới, toàn bộ mã nguồn được tổ chức theo cấu trúc phân cấp dưới đây:
 
-Môn học cung cấp kiến thức thực tiễn về thiết kế mạch logic sử dụng ngôn ngữ mô tả phần cứng **Verilog HDL**, thực thi và mô phỏng trên các công cụ mô phỏng chuyên dụng.
-
-| Bài thực hành | Nội dung chi tiết | Công cụ sử dụng |
-| :--- | :--- | :--- |
-| **[LAB 01](CE213.Q21.VMTN/LAB01)** | Thiết kế và mô phỏng mạch logic cơ bản ở hai mức độ: mô tả cấu trúc (Structural) và mô tả hành vi (Behavioral). | Quartus Prime, ModelSim |
-| **[LAB 02](CE213.Q21.VMTN/LAB02)** | Thiết kế bộ tăng tốc xử lý ảnh trên phần cứng (Hardware Accelerator) gồm khối chuyển đổi ảnh xám (RGB to Gray) và bộ lọc trung vị (Median Filter). | Verilog HDL, Python, ModelSim |
-| **[LAB 03](CE213.Q21.VMTN/LAB03)** | Thiết kế bộ điều khiển truyền tin DMA (Direct Memory Access) giao tiếp theo chuẩn bus Avalon-MM. | Quartus Prime, Platform Designer, Avalon-MM Bus, C/C++ |
-
----
-
-## 🛠️ Công cụ sử dụng chung
-
-*   **Ngôn ngữ mô tả phần cứng**: Verilog HDL / SystemVerilog.
-*   **Phần mềm mô phỏng & tổng hợp**: Intel Quartus Prime, ModelSim / Questa, Vivado ML.
-*   **Ngôn ngữ hỗ trợ**: Python (dùng để xử lý dữ liệu kiểm thử phần cứng).
+```text
+UIT_CELAB/
+└── [Mã_Môn_Học].[Mã_Lớp]/      # Thư mục quản lý theo từng môn học cụ thể
+    ├── LAB01/                  # Thư mục chứa bài thực hành số 1
+    ├── LAB02/                  # Thư mục chứa bài thực hành số 2
+    └── ...
+```
 
 ---
 
-## ⚠️ Quy định sử dụng (Academic Honesty)
+## Liêm chính học thuật
 
-*   Kho mã nguồn này được chia sẻ công khai với mục tiêu hỗ trợ các bạn khóa sau **tham khảo ý tưởng thiết kế logic, học cách tổ chức mã nguồn và viết testbench mô phỏng**.
-*   Vui lòng **không sao chép nguyên bản (copy-paste)** để nộp bài. Việc tự học, tự debug trên phần mềm là cách duy nhất để hiểu sâu kiến thức môn học.
-
----
-
-## ✉️ Liên hệ & Đóng góp
-
-Nếu bạn có bất kỳ đề xuất, đóng góp cải tiến nào hoặc có thắc mắc về mã nguồn trong repo này, vui lòng liên hệ với tôi thông qua thông tin liên hệ được công khai trên [trang cá nhân GitHub](https://github.com/quannguyen247) của tôi.
+*   **Mục đích**: Các tài liệu trong kho lưu trữ này được chia sẻ công khai nhằm hỗ trợ các bạn sinh viên khóa sau tham khảo ý tưởng thiết kế logic, cách tổ chức mã nguồn và phương pháp viết testbench mô phỏng.
+*   **Yêu cầu**: Vui lòng không sao chép nguyên bản để nộp bài. Việc tự tìm hiểu, thiết kế hệ thống và sửa lỗi trên các công cụ chuyên dụng là cách duy nhất giúp bạn nắm vững kiến thức chuyên ngành.
 
 ---
 
-## 📜 Giấy phép (License)
+## Liên hệ & Góp ý
 
-Dự án này được cấp phép theo các điều khoản của giấy phép **MIT License**. Xem chi tiết tại tệp [LICENSE](LICENSE).
+Nếu bạn có thắc mắc, góp ý hoặc thảo luận về mã nguồn trong kho lưu trữ này, vui lòng tham khảo thông tin liên hệ được công khai trên [trang cá nhân GitHub](https://github.com/quannguyen247) của mình.
+
+---
+
+## Giấy phép
+
+Dự án được phát hành kèm theo giấy phép [MIT License](LICENSE).
